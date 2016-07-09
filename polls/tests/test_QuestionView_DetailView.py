@@ -71,3 +71,26 @@ class QuestionViewTests(TestCase):
             response.context['latestQuestionList'],
             ['<Question: Past question 2.>',
              '<Question: Past question 1.>'])
+
+
+class DetailViewTests(TestCase):
+    def test_detail_view_with_past_question(self):
+        """
+        The detail view should display the question's text
+        """
+        past_question = create_question(question_Text = "Past question",
+                                        days = -5)
+        url = reverse('polls:detail', args = (past_question.id,))
+        response = self.client.get(url)
+        self.assertContains(response, past_question.question_Text)
+
+    def test_detail_view_with_future_question(self):
+        """
+        The DetailView should raise a 404 error when someone tries
+        to acces via URL a question that is not yet published.
+        """
+        future_question = create_question(question_Text = "Future question",
+                                          days = 5)
+        url = reverse('polls:detail', args = (future_question.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
